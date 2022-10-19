@@ -9,7 +9,20 @@ class _Multiplayer {
     this.region = options?.region || 'asia'
     this.version = options?.version || '1.0'
 
+    this.bind()
     this.connection()
+  }
+
+  onRoomList(data) {
+    console.log('> onRoomList', { data })
+  }
+  onJoinRoom(data) {
+    console.log('> Joined the room.', { data })
+  }
+
+  bind() {
+    this.onRoomList = this.onRoomList.bind(this)
+    this.onJoinRoom = this.onJoinRoom.bind(this)
   }
 
   connection() {
@@ -21,7 +34,16 @@ class _Multiplayer {
         this.version
       )
 
-      this.client.connectToRegionMaster(this.region)
+      // this.client.connectToRegionMaster(this.region)
+
+      // Connect to the master server
+      if (!this.client.isInLobby()) {
+        this.client.connectToRegionMaster(this.region)
+      }
+
+      // Added
+      this.client.onRoomList = this.onRoomList
+      this.client.onJoinRoom = this.onJoinRoom
 
       console.log('✅', 'Photon client connected!')
       console.log({ photonClient: this.client })
