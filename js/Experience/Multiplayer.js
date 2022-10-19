@@ -4,6 +4,8 @@ class _Multiplayer {
   init(options) {
     this.isConnected = false
 
+    this.players = []
+
     this.id = options?.id || 'dbd2e5c5-443e-4001-aeab-399c978c7206'
     this.wss = options?.wss || 1
     this.region = options?.region || 'asia'
@@ -17,12 +19,40 @@ class _Multiplayer {
     console.log('> onRoomList', { data })
   }
   onJoinRoom(data) {
-    console.log('> Joined the room.', { data })
+    console.log('> onJoinRoom.', { data })
+  }
+
+  onActorJoin(actor) {
+    console.log('> onActorJoin', { actor })
+
+    const { actorNr } = actor
+
+    if (actor.isLocal) return
+
+    const otherPlayer = new pc.Entity()
+    otherPlayer.addComponent('render', { type: 'capsule' })
+    otherPlayer.setLocalPosition(0, 1, 0)
+    otherPlayer.name = actorNr
+
+    // this.app.root.children[0].addChild(otherPlayer);
+    this.players = [otherPlayer, ...this.players]
+  }
+  onActorLeave(data) {
+    console.log('> onActorLeave', { actor })
+
+    // todo:
+    // const { actorNr } = actor;
+    // const otherPlayer = this.app.root.children[0].findByName(actorNr);
+
+    // if (actor.isLocal || !otherPlayer) return;
+    // otherPlayer.destroy();
   }
 
   bind() {
     this.onRoomList = this.onRoomList.bind(this)
     this.onJoinRoom = this.onJoinRoom.bind(this)
+    this.onActorJoin = this.onActorJoin.bind(this)
+    this.onActorLeave = this.onActorLeave.bind(this)
   }
 
   connection() {
@@ -41,9 +71,11 @@ class _Multiplayer {
         this.client.connectToRegionMaster(this.region)
       }
 
-      // Added
       this.client.onRoomList = this.onRoomList
       this.client.onJoinRoom = this.onJoinRoom
+
+      this.client.onActorJoin = this.onActorJoin
+      this.client.onActorLeave = this.onActorLeave
 
       console.log('✅', 'Photon client connected!')
       console.log({ photonClient: this.client })
