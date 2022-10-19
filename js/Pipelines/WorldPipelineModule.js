@@ -20,6 +20,8 @@ export const initWorldPipelineModule = () => {
   }
 
   const updateWorld = () => {
+    Multiplayer?.update()
+
     dummy?.update()
     particleSystem?.update()
   }
