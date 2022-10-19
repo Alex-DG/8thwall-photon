@@ -88,7 +88,6 @@ export const initXRScenePipelineModule = () => {
 
     // Ready ✨
     engaged = true
-    console.log('🤖', 'XR Scene ready')
   }
 
   // This is a workaround for https://bugs.webkit.org/show_bug.cgi?id=237230

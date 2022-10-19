@@ -3,16 +3,18 @@ import Photon from '../Lib/Photon-Javascript_SDK.min.js'
 class _Multiplayer {
   init(APPID = 'dbd2e5c5-443e-4001-aeab-399c978c7206') {
     try {
-      const client = new Photon.LoadBalancing.LoadBalancingClient(
-        Photon.ConnectionProtocol.Ws,
+      // Photon Settings
+      this.client = new Photon.LoadBalancing.LoadBalancingClient(
+        1,
         APPID,
         '1.0'
       )
-      console.log({ client })
 
-      client.connectToRegionMaster('ASIA')
+      this.client.connectToRegionMaster('ASIA')
+
+      console.log('✅', 'Photon client connected!')
     } catch (error) {
-      console.log('MULITPLAYER ERROR ------')
+      console.log('❌', 'Photon client error!')
       console.log({ error })
     }
   }
