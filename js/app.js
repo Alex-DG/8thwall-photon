@@ -2,8 +2,12 @@ import '../styles/app.css'
 
 import * as THREE from 'three'
 
+import VConsole from 'vconsole'
+
 import { initXRScenePipelineModule } from './Pipelines/XRScenePipelineModule'
 import { initWorldPipelineModule } from './Pipelines/WorldPipelineModule'
+
+new VConsole({ theme: 'dark' })
 
 const onxrloaded = () => {
   window.THREE = THREE

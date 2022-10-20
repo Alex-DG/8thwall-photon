@@ -9,7 +9,7 @@ export const initWorldPipelineModule = () => {
   const initExperience = () => {
     const { scene } = XR8.Threejs.xrScene()
 
-    dummy = new Dummy({ scene })
+    // dummy = new Dummy({ scene })
     particleSystem = new ParticleSystem({ scene })
 
     console.log('✨', 'World ready')

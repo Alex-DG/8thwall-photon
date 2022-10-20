@@ -17,7 +17,19 @@
     ></script>
   </head>
   <body>
-    <div id="app"></div>
+    <div class="gui">
+      <h6>::Actions::</h6>
+      <button id="newroom">Create Room</button>
+
+      <h6>::List::</h6>
+      <select id="roomlist">
+        <option value="default">Room(s)</option>
+      </select>
+
+      <select id="actorlist">
+        <option value="default">Actor(s)</option>
+      </select>
+    </div>
     <canvas id="experience"></canvas>
     <script type="module" src="./js/app.js"></script>
   </body>

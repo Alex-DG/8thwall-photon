@@ -3,21 +3,24 @@
  */
 class Dummy {
   constructor(options) {
-    this.scene = options.scene
+    this.group = options.group
+    this.name = options.name
     this.init()
   }
 
   init() {
     this.instance = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 1, 1, 10, 10, 10),
-      new THREE.MeshNormalMaterial({
+      new THREE.BoxGeometry(1, 1, 1, 20, 20, 20),
+      new THREE.MeshBasicMaterial({
+        color: Math.random() * 0xffffff,
         // blending: THREE.AdditiveBlending,
-        // wireframe: true,
+        wireframe: true,
       })
     )
+    this.instance.name = this.name
     this.instance.position.z = -5
     this.instance.position.y = 1
-    this.scene.add(this.instance)
+    this.group.add(this.instance)
   }
 
   update() {
