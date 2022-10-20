@@ -43,7 +43,6 @@ class _Multiplayer {
 
   createPlayerEntity(name) {
     const isPlayerExist = this.playerGroup.children.some((p) => p.name === name)
-    console.log({ isPlayerExist })
     if (!isPlayerExist) {
       const player = new Dummy({ group: this.playerGroup, name })
       this.players.push(player)
@@ -64,7 +63,12 @@ class _Multiplayer {
 
   addPlayerUI(name) {
     const list = document.getElementById('actorlist')
+
+    const isActorExist = [...list.children].some((c) => c.id === name)
+    if (isActorExist) return
+
     var opt = document.createElement('option')
+    opt.id = name
     opt.value = name
     opt.innerHTML = name
     list.appendChild(opt)
@@ -122,17 +126,18 @@ class _Multiplayer {
     console.log('> onActorJoin', { actor })
 
     const name = `actor-${actor.actorNr}`
-    this.addPlayerUI(name)
+
     actor.setName(name)
 
     const myRoom = this.client.myRoom()
     const myRoomActors = this.client.myRoomActors()
 
     this.actors = { ...this.actors, [myRoom.name]: myRoomActors }
-    // Object.keys(myRoomActors).forEach((index) => {
-    //   const roomActor = myRoomActors[index]
-    //   this.createPlayerEntity(roomActor.name)
-    // })
+    Object.keys(myRoomActors).forEach((index) => {
+      const roomActor = myRoomActors[index]
+      this.addPlayerUI(roomActor.name)
+      // this.createPlayerEntity(roomActor.name)
+    })
 
     const isRoomExist = this.rooms.some((r) => r.name === myRoom.name)
     if (!isRoomExist) this.rooms = [...this.rooms, myRoom]
