@@ -1,11 +1,4 @@
-# ViteJS 8thwall ThreeJS Template
-
-Minimal reusable template project: 8thwall + threeJS made with viteJS⚡
-
-[Demo](https://vite-8thwall-three-template.vercel.app/)
-
-![Screenshot 2022-08-10 154837](https://user-images.githubusercontent.com/4311684/183917872-75d8d990-56f4-40fe-9443-a5e8174dd152.png)
-
+# V8thwall + photon engine
 
 ## Setup
 
