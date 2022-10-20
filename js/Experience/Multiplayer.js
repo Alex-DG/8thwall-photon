@@ -1,17 +1,16 @@
 import Photon from '../Lib/Photon-Javascript_SDK.min.js'
 import Dummy from './Dummy.js'
 
+/**
+ * Documentation:
+ * https://doc-api.photonengine.com/en/javascript/current/Photon.LoadBalancing.LoadBalancingClient.html
+ */
 class _Multiplayer {
   init(options) {
-    const { scene } = XR8.Threejs.xrScene()
-
     this.isConnected = false
-    this.scene = scene
-    this.playerGroup = new THREE.Group()
-    this.scene.add(this.playerGroup)
 
     this.actors = {} // { roomName1: [actor1, actor2, etc..], roomName2: [...], ... }
-    this.players = []
+    this.entities = []
     this.rooms = []
 
     this.gameIndex = 0
@@ -41,11 +40,13 @@ class _Multiplayer {
     this.gameIndex = index
   }
 
-  createPlayerEntity(name) {
-    const isPlayerExist = this.playerGroup.children.some((p) => p.name === name)
+  createEntity(name, actorNr) {
+    const isPlayerExist = this.entities.some((e) => e.name === name)
+
     if (!isPlayerExist) {
-      const player = new Dummy({ group: this.playerGroup, name })
-      this.players.push(player)
+      console.log('---> Create new entity ', name)
+      const player = new Dummy({ name, index: actorNr })
+      this.entities.push(player)
     }
   }
 
@@ -61,7 +62,7 @@ class _Multiplayer {
     this.roomList.removeChild(room)
   }
 
-  addPlayerUI(name) {
+  addActorUI(name) {
     const list = document.getElementById('actorlist')
 
     const isActorExist = [...list.children].some((c) => c.id === name)
@@ -74,7 +75,7 @@ class _Multiplayer {
     list.appendChild(opt)
   }
 
-  removePlayerUI(name) {
+  removeActorUI(name) {
     const room = document.getElementById(name)
     const list = document.getElementById('actorlist')
     list.removeChild(room)
@@ -82,8 +83,15 @@ class _Multiplayer {
 
   ////////////////////////////////////////////////////
 
+  onAddEntity() {
+    // local only
+    const index = this.entities.length + 1
+    const name = `actor-${index}`
+    this.createEntity(name, index)
+  }
+
   onRoomSelected() {
-    const index = this.roomList.selectedIndex
+    const index = this.roomList.selectedIndex || 1
     const roomName = this.roomList.options[index].text
 
     this.client.joinRoom(roomName)
@@ -126,43 +134,60 @@ class _Multiplayer {
     console.log('> onActorJoin', { actor })
 
     const name = `actor-${actor.actorNr}`
-
     actor.setName(name)
-
     const myRoom = this.client.myRoom()
     const myRoomActors = this.client.myRoomActors()
 
     this.actors = { ...this.actors, [myRoom.name]: myRoomActors }
+
     Object.keys(myRoomActors).forEach((index) => {
       const roomActor = myRoomActors[index]
-      this.addPlayerUI(roomActor.name)
-      // this.createPlayerEntity(roomActor.name)
+      const { name, actorNr } = roomActor
+      this.addActorUI(name)
+      this.createEntity(name, actorNr)
     })
 
     const isRoomExist = this.rooms.some((r) => r.name === myRoom.name)
     if (!isRoomExist) this.rooms = [...this.rooms, myRoom]
 
-    // console.log({
-    //   actors: this.actors,
-    //   rooms: this.rooms,
-    //   playerGroup: this.playerGroup,
-    //   players: this.players,
-    // })
+    console.log({
+      actors: this.actors,
+      rooms: this.rooms,
+      entities: this.entities,
+      scene: XR8.Threejs.xrScene().scene,
+    })
   }
 
   onActorLeave(actor) {
     console.log('> onActorLeave', { actor })
 
-    // const userId = actor.userId
     const name = actor.name
+    const actorNr = actor.actorNr
 
-    this.removePlayerUI(name)
-    // this.actors = this.actors.filter((p) => p.userId !== userId)
+    // Remove entities
+    this.entities.filter((e) => {
+      if (e.name === name) {
+        e.destroy()
+        return true
+      }
+      return false
+    })
+
+    // Remove UI
+    this.removeActorUI(name)
+
+    // Remove actors
+    const myRoomName = this.client.myRoom().name
+    delete this.actors[myRoomName][actorNr]
+
+    console.log({ actors: this.actors })
   }
 
   ////////////////////////////////////////////////////
 
   bind() {
+    this.onAddEntity = this.onAddEntity.bind(this)
+
     this.onRoomList = this.onRoomList.bind(this)
     this.onJoinRoom = this.onJoinRoom.bind(this)
 
@@ -172,7 +197,7 @@ class _Multiplayer {
     this.onCreateNewRoom = this.onCreateNewRoom.bind(this)
     this.onRoomSelected = this.onRoomSelected.bind(this)
 
-    this.createPlayerEntity = this.createPlayerEntity.bind(this)
+    this.createEntity = this.createEntity.bind(this)
   }
 
   ////////////////////////////////////////////////////
@@ -209,6 +234,9 @@ class _Multiplayer {
     this.newRoomBtn = document.getElementById('newroom')
     this.newRoomBtn.addEventListener('click', this.onCreateNewRoom)
 
+    this.addEntityBtn = document.getElementById('addentity')
+    this.addEntityBtn.addEventListener('click', this.onAddEntity)
+
     this.roomList = document.getElementById('roomlist')
     this.roomList.addEventListener('change', this.onRoomSelected)
   }
@@ -219,10 +247,9 @@ class _Multiplayer {
     if (this.isConnected) {
       // this.client?.Service()
       // Thread.Sleep(33)
-
-      for (let index = 0; index < this.players?.length; index++) {
-        const p = this.players[index]
-        p.update()
+      for (let index = 0; index < this.entities?.length; index++) {
+        const e = this.entities[index]
+        e?.update()
       }
     }
   }
